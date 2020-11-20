@@ -25,13 +25,12 @@ class CustomTelnet(Telnet):
     def read(
         self,
         mode: str = MODE,
-        end: str = END,
         encoding: str = ENCODING,
         **kwargs: dict,
     ) -> str:
         """Wrapper of Telnet.read_*() and returns string, not bytes."""
         received = getattr(super(), f"read_{mode}")(**kwargs)
-        string = received.decode(encoding).rstrip(end)
+        string = received.decode(encoding).rstrip()
 
         logger.info(f"{self.host}, {self.port}, {string}")
         return string
