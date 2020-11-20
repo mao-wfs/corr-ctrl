@@ -5,6 +5,7 @@ __all__ = [
 
 # standard library
 from logging import getLogger
+from pathlib import Path
 from telnetlib import Telnet
 from typing import Optional
 
@@ -44,6 +45,20 @@ class CustomTelnet(Telnet):
         """Same as Telnet.write(), but accepts string, not bytes."""
         super().write((string + end).encode(encoding))
         logger.info(f"{self.host}:{self.port} -> {string}")
+
+    def write_from(
+        self,
+        path: Path,
+        end: str = END,
+        encoding: str = ENCODING,
+    ) -> None:
+        """Send line(s) written in a file."""
+        with open(path) as f:
+            for line in f:
+                if not line or line.startswith("#"):
+                    continue
+
+                self.write(line.strip(), end, encoding)
 
 
 def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomTelnet:
