@@ -55,7 +55,7 @@ class CustomTelnet(Telnet):
         end: str = END,
         encoding: str = ENCODING,
     ) -> None:
-        """Send line(s) written in a file."""
+        """Write line(s) written in a file."""
         with open(path) as f:
             for line in f:
                 if not line or line.startswith("#"):
