@@ -32,7 +32,7 @@ class CustomTelnet(Telnet):
         received = getattr(super(), f"read_{mode}")(**kwargs)
         string = received.decode(encoding).rstrip()
 
-        logger.info(f"{self.host}, {self.port}, {string}")
+        logger.info(f"{self.host}:{self.port} <- {string}")
         return string
 
     def write(
@@ -43,7 +43,7 @@ class CustomTelnet(Telnet):
     ) -> None:
         """Same as Telnet.write(), but accepts string, not bytes."""
         super().write((string + end).encode(encoding))
-        logger.info(f"{self.host}, {self.port}, {string}")
+        logger.info(f"{self.host}:{self.port} -> {string}")
 
 
 def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomTelnet:
