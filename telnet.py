@@ -4,6 +4,8 @@ __all__ = [
 
 
 # standard library
+import os
+import sys
 from logging import getLogger
 from pathlib import Path
 from telnetlib import Telnet
@@ -86,3 +88,13 @@ def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomT
 
     """
     return CustomTelnet(host, port, timeout)
+
+
+# main script
+if __name__ == "__main__":
+    host = os.environ["CORR_HOST"]
+    port = os.environ["CORR_PORT"]
+    path = sys.argv[1]
+
+    with connect(host, port) as tn:
+        tn.write_from(path)
