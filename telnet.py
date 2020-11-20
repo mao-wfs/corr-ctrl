@@ -14,12 +14,13 @@ from typing import Optional
 
 
 # constants
-AUTOREAD: bool = True
+AUTO_READ: bool = True
 ENCODING: str = "ascii"
 END_WRITE: str = ";\n"
 END_READ: str = ";\r"
 KWD_COMMENT: str = "#"
 KWD_QUERY: str = "?"
+LOG_WIDTH: int = 100
 TIMEOUT: Optional[float] = None
 
 
@@ -33,15 +34,15 @@ class CustomTelnet(Telnet):
         """Wrapper of Telnet.read_eager() and returns string, not bytes."""
         string = self.read_eager().decode(ENCODING).rstrip(END_READ)
 
-        logger.info(f"{self.host}:{self.port} <- {string}")
+        logger.info(f"{self.host}:{self.port} <- {shorten(string, LOG_WIDTH)}")
         return string
 
     def write(self, string: str) -> None:
         """Same as Telnet.write(), but accepts string, not bytes."""
         super().write((string + END_WRITE).encode(ENCODING))
-        logger.info(f"{self.host}:{self.port} -> {string}")
+        logger.info(f"{self.host}:{self.port} -> {shorten(string, LOG_WIDTH)}")
 
-    def write_from(self, path: Path, autoread: bool = AUTOREAD) -> None:
+    def write_from(self, path: Path, auto_read: bool = AUTO_READ) -> None:
         """Write line(s) written in a file and read data if exists."""
         with open(path) as f:
             for line in f:
@@ -52,7 +53,7 @@ class CustomTelnet(Telnet):
 
                 self.write(line)
 
-                if autoread and line.endswith(KWD_QUERY):
+                if auto_read and line.endswith(KWD_QUERY):
                     self.read(ENCODING)
 
 
@@ -81,6 +82,11 @@ def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomT
 
     """
     return CustomTelnet(host, port, timeout)
+
+
+def shorten(string: str, width: int, placeholder: str = "...") -> str:
+    """Same as textwrap.shorten(), but compatible with string without whitespaces."""
+    return string[:width] + (placeholder if string[width:] else "")
 
 
 # main script
