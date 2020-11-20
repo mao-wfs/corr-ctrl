@@ -6,7 +6,8 @@ __all__ = [
 # standard library
 import os
 import sys
-from logging import getLogger
+from logging import basicConfig, INFO, getLogger
+from logging import FileHandler, StreamHandler
 from pathlib import Path
 from telnetlib import Telnet
 from typing import Optional
@@ -92,6 +93,12 @@ def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomT
 
 # main script
 if __name__ == "__main__":
+    basicConfig(
+        level=INFO,
+        format="%(asctime)s %(levelname)s %(message)s",
+        handlers=(StreamHandler(), FileHandler("telnet.log")),
+    )
+
     host = os.environ["CORR_HOST"]
     port = os.environ["CORR_PORT"]
     path = sys.argv[1]
