@@ -28,7 +28,7 @@ TIMEOUT: Optional[float] = None
 logger = getLogger(__name__)
 
 
-# helper features
+# main features
 class CustomTelnet(Telnet):
     def read(self) -> str:
         """Wrapper of Telnet.read_eager() and returns string, not bytes."""
@@ -84,6 +84,7 @@ def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomT
     return CustomTelnet(host, port, timeout)
 
 
+# helper features
 def shorten(string: str, width: int, placeholder: str = "...") -> str:
     """Same as textwrap.shorten(), but compatible with string without whitespaces."""
     return string[:width] + (placeholder if string[width:] else "")
