@@ -93,6 +93,14 @@ def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomT
 
 # main script
 if __name__ == "__main__":
+    """Mini tool to send line(s) written in a file.
+
+    Usage:
+        $ export CORR_HOST=<host name>
+        $ export CORR_PORT=<port number>
+        $ poetry run python telnet.py <file path>
+
+    """
     basicConfig(
         level=INFO,
         format="%(asctime)s %(levelname)s %(message)s",
