@@ -14,9 +14,12 @@ from typing import Optional
 
 
 # constants
+AUTOREAD: bool = True
 ENCODING: str = "ascii"
-END: str = "\n"
-MODE: str = "eager"
+END_WRITE: str = ";\n"
+END_READ: str = ";\r"
+KWD_COMMENT: str = "#"
+KWD_QUERY: str = "?"
 TIMEOUT: Optional[float] = None
 
 
@@ -26,42 +29,31 @@ logger = getLogger(__name__)
 
 # helper features
 class CustomTelnet(Telnet):
-    def read(
-        self,
-        mode: str = MODE,
-        encoding: str = ENCODING,
-        **kwargs: dict,
-    ) -> str:
-        """Wrapper of Telnet.read_*() and returns string, not bytes."""
-        received = getattr(super(), f"read_{mode}")(**kwargs)
-        string = received.decode(encoding).rstrip()
+    def read(self) -> str:
+        """Wrapper of Telnet.read_eager() and returns string, not bytes."""
+        string = self.read_eager().decode(ENCODING).rstrip(END_READ)
 
         logger.info(f"{self.host}:{self.port} <- {string}")
         return string
 
-    def write(
-        self,
-        string: str,
-        end: str = END,
-        encoding: str = ENCODING,
-    ) -> None:
+    def write(self, string: str) -> None:
         """Same as Telnet.write(), but accepts string, not bytes."""
-        super().write((string + end).encode(encoding))
+        super().write((string + END_WRITE).encode(ENCODING))
         logger.info(f"{self.host}:{self.port} -> {string}")
 
-    def write_from(
-        self,
-        path: Path,
-        end: str = END,
-        encoding: str = ENCODING,
-    ) -> None:
-        """Write line(s) written in a file."""
+    def write_from(self, path: Path, autoread: bool = AUTOREAD) -> None:
+        """Write line(s) written in a file and read data if exists."""
         with open(path) as f:
             for line in f:
-                if not line or line.startswith("#"):
+                line = line.strip()
+
+                if not line or line.startswith(KWD_COMMENT):
                     continue
 
-                self.write(line.strip(), end, encoding)
+                self.write(line)
+
+                if autoread and line.endswith(KWD_QUERY):
+                    self.read(ENCODING)
 
 
 def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomTelnet:
