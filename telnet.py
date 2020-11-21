@@ -34,13 +34,13 @@ class CustomTelnet(Telnet):
         """Wrapper of Telnet.read_some() and returns string, not bytes."""
         string = self.read_some().decode(ENCODING).rstrip(END_READ)
 
-        logger.info(f"{self.host}:{self.port} <- {shorten(string, LOG_WIDTH)}")
+        logger.info(f"{self.host}:{self.port} -> {shorten(string, LOG_WIDTH)}")
         return string
 
     def write(self, string: str) -> None:
         """Same as Telnet.write(), but accepts string, not bytes."""
         super().write((string + END_WRITE).encode(ENCODING))
-        logger.info(f"{self.host}:{self.port} -> {shorten(string, LOG_WIDTH)}")
+        logger.info(f"{self.host}:{self.port} <- {shorten(string, LOG_WIDTH)}")
 
     def write_from(self, path: Path, auto_read: bool = AUTO_READ) -> None:
         """Write line(s) written in a file and read data if exists."""
