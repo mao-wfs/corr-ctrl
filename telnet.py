@@ -17,7 +17,7 @@ from typing import Optional
 AUTO_READ: bool = True
 ENCODING: str = "ascii"
 END_WRITE: str = ";\n"
-END_READ: str = ";\r"
+END_READ: str = ";\r\n"
 KWD_COMMENT: str = "#"
 KWD_QUERY: str = "?"
 LOG_WIDTH: int = 100
@@ -31,8 +31,8 @@ logger = getLogger(__name__)
 # main features
 class CustomTelnet(Telnet):
     def read(self) -> str:
-        """Wrapper of Telnet.read_eager() and returns string, not bytes."""
-        string = self.read_eager().decode(ENCODING).rstrip(END_READ)
+        """Wrapper of Telnet.read_some() and returns string, not bytes."""
+        string = self.read_some().decode(ENCODING).rstrip(END_READ)
 
         logger.info(f"{self.host}:{self.port} <- {shorten(string, LOG_WIDTH)}")
         return string
