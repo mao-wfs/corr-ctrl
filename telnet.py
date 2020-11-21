@@ -96,7 +96,7 @@ if __name__ == "__main__":
     Usage:
         $ export CORR_HOST=<host name>
         $ export CORR_PORT=<port number>
-        $ poetry run python telnet.py <file path>
+        $ poetry run python telnet.py <file path or command>
 
     """
     basicConfig(
