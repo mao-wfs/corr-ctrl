@@ -91,7 +91,7 @@ def shorten(string: str, width: int, placeholder: str = "...") -> str:
 
 # main script
 if __name__ == "__main__":
-    """Mini tool to send line(s) written in a file.
+    """Mini tool to send command or line(s) written in a file.
 
     Usage:
         $ export CORR_HOST=<host name>
