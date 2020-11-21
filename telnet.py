@@ -54,7 +54,7 @@ class CustomTelnet(Telnet):
                 self.write(line)
 
                 if auto_read and line.endswith(KWD_QUERY):
-                    self.read(ENCODING)
+                    self.read()
 
 
 def connect(host: str, port: int, timeout: Optional[float] = TIMEOUT) -> CustomTelnet:
