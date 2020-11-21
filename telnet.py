@@ -19,7 +19,6 @@ ENCODING: str = "ascii"
 END_WRITE: str = ";\n"
 END_READ: str = ";\r\n"
 KWD_COMMENT: str = "#"
-KWD_QUERY: str = "?"
 LOG_WIDTH: int = 100
 TIMEOUT: Optional[float] = None
 
@@ -53,7 +52,7 @@ class CustomTelnet(Telnet):
 
                 self.write(line)
 
-                if auto_read and line.endswith(KWD_QUERY):
+                if auto_read:
                     self.read()
 
 
