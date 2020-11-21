@@ -1,0 +1,53 @@
+# standard library
+import os
+import sys
+import time
+from logging import basicConfig, INFO
+from logging import FileHandler, StreamHandler
+
+
+# dependencies
+from telnet import connect
+
+
+# logger settings
+if __name__ == "__main__":
+    """Script for fringe search.
+
+    Usage:
+        $ export CORR_HOST=<host name>
+        $ export CORR_PORT=<port number>
+        $ poetry run python fringe_search.py <start> <stop> <step> <interval>
+
+    """
+    basicConfig(
+        level=INFO,
+        format="%(asctime)s %(levelname)s %(message)s",
+        handlers=(
+            StreamHandler(),
+            FileHandler("telnet.log"),
+            FileHandler("fringe_search.log"),
+        ),
+    )
+
+    host = os.environ["CORR_HOST"]
+    port = os.environ["CORR_PORT"]
+    start = int(sys.argv[1])
+    stop = int(sys.argv[2])
+    step = int(sys.argv[3])
+    interval = float(sys.argv[4])
+
+    with connect(host, port) as tn:
+        for delay in range(start, stop, step):
+            # set new value
+            tn.write(f"set_dlyoffset2={delay}")
+            tn.read()
+
+            # check values
+            tn.write("set_dlyoffset1?")
+            tn.read()
+            tn.write("set_dlyoffset2?")
+            tn.read()
+
+            # wait
+            time.sleep(interval)
