@@ -107,7 +107,12 @@ if __name__ == "__main__":
 
     host = os.environ["CORR_HOST"]
     port = os.environ["CORR_PORT"]
-    path = sys.argv[1]
+    path_or_cmd = sys.argv[1]
 
-    with connect(host, port) as tn:
-        tn.write_from(path)
+    if Path(path_or_cmd).exists():
+        with connect(host, port) as tn:
+            tn.write_from(path_or_cmd)
+    else:
+        with connect(host, port) as tn:
+            tn.write(path_or_cmd)
+            tn.read()
