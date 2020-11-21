@@ -106,7 +106,7 @@ if __name__ == "__main__":
     )
 
     host = os.environ["CORR_HOST"]
-    port = os.environ["CORR_PORT"]
+    port = int(os.environ["CORR_PORT"])
     path_or_cmd = sys.argv[1]
 
     if Path(path_or_cmd).exists():
