@@ -4,8 +4,10 @@
 # standard library
 from os import environ
 from datetime import datetime, timedelta, timezone
+from logging import FileHandler, StreamHandler, basicConfig, getLogger
 from typing import Literal
 from pathlib import Path
+from subprocess import run
 
 
 # dependencies
@@ -17,14 +19,19 @@ from fire import Fire
 OPTS_FIXED = ["-f", "16K", "-m", "RAW", "-t", "13"]
 
 
+# module-level logger
+logger = getLogger(__name__)
+
+
 # runtime functions
-def run(
+def main(
     start: str = "in 30 seconds",
     duration: float = 5.0,
     interval: Literal[5, 10] = 10,
     prefix: str = "corr",
     outdir: Path = Path("."),
     dryrun: bool = False,
+    debug: bool = False,
 ) -> None:
     """Run the cordata command.
 
@@ -35,11 +42,17 @@ def run(
         prefix: Name prefix of the output data.
         outdir: Directory for the output data.
         dryrun: If True, the command is not run.
+        debug: If True, debug messages are logged.
 
     Returns:
         This function returns nothing.
 
     """
+    configure_logging(debug)
+
+    for name, value in locals().items():
+        logger.debug(f"{name}: {value!r}")
+
     # parse start time and determine end time
     dt_start = parse(start).astimezone(timezone.utc)
     dt_end = dt_start + timedelta(minutes=duration)
@@ -63,7 +76,7 @@ def run(
     if not cordata.exists():
         raise FileNotFoundError(f"{cordata} does not exist.")
 
-    # create the shell command to be run
+    # create a shell command
     opts_from_env = (
         "-w",
         get_env("CORDATA_DEST"),
@@ -90,7 +103,11 @@ def run(
         *OPTS_FIXED,
     )
 
-    print(cmd)
+    logger.info(" ".join(cmd))
+
+    # run the command
+    if not dryrun:
+        run(cmd)
 
 
 def get_env(name: str) -> str:
@@ -104,5 +121,16 @@ def format_date(dt: datetime) -> str:
     return dt.strftime("%Y%j%H%M%S")
 
 
+def configure_logging(debug: bool = False) -> None:
+    basicConfig(
+        level="DEBUG" if debug else "INFO",
+        format="%(asctime)s %(levelname)s %(message)s",
+        handlers=(
+            StreamHandler(),
+            FileHandler("corr-ctrl.log"),
+        ),
+    )
+
+
 if __name__ == "__main__":
-    Fire(run)
+    Fire(main)
