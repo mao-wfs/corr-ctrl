@@ -1,0 +1,108 @@
+#!/usr/bin/env python
+
+
+# standard library
+from os import environ
+from datetime import datetime, timedelta, timezone
+from typing import Literal
+from pathlib import Path
+
+
+# dependencies
+from dateparser import parse
+from fire import Fire
+
+
+# constants
+OPTS_FIXED = ["-f", "16K", "-m", "RAW", "-t", "13"]
+
+
+# runtime functions
+def run(
+    start: str = "in 30 seconds",
+    duration: float = 5.0,
+    interval: Literal[5, 10] = 10,
+    prefix: str = "corr",
+    outdir: Path = Path("."),
+    dryrun: bool = False,
+) -> None:
+    """Run the cordata command.
+
+    Args:
+        start: Start time in any time format.
+        duration: Duration of run in minutes.
+        interval: Interval time in milliseconds.
+        prefix: Name prefix of the output data.
+        outdir: Directory for the output data.
+        dryrun: If True, the command is not run.
+
+    Returns:
+        This function returns nothing.
+
+    """
+    # parse start time and determine end time
+    dt_start = parse(start).astimezone(timezone.utc)
+    dt_end = dt_start + timedelta(minutes=duration)
+
+    # validate interval
+    if interval not in (5, 10):
+        raise ValueError("Interval must be either 5 or 10.")
+
+    # parse and validate output directory
+    outdir = Path(outdir).expanduser()
+
+    if not outdir.exists():
+        raise FileNotFoundError(f"{outdir} does not exist.")
+
+    if not outdir.is_dir():
+        raise ValueError(f"{outdir} is not a directory.")
+
+    # validate the cordata command
+    cordata = Path(get_env("CORDATA_PATH")).expanduser()
+
+    if not cordata.exists():
+        raise FileNotFoundError(f"{cordata} does not exist.")
+
+    # create the shell command to be run
+    opts_from_env = (
+        "-w",
+        get_env("CORDATA_DEST"),
+        "-c",
+        get_env("CORDATA_SRC"),
+    )
+    opts_from_cli = (
+        "-s",
+        format_date(dt_start),
+        "-e",
+        format_date(dt_end),
+        "-i",
+        str(int(interval)),
+        "-o",
+        prefix,
+        "-d",
+        str(outdir),
+    )
+
+    cmd = (
+        str(cordata),
+        *opts_from_env,
+        *opts_from_cli,
+        *OPTS_FIXED,
+    )
+
+    print(cmd)
+
+
+def get_env(name: str) -> str:
+    try:
+        return environ[name]
+    except KeyError:
+        raise RuntimeError(f"{name} is not set.")
+
+
+def format_date(dt: datetime) -> str:
+    return dt.strftime("%Y%j%H%M%S")
+
+
+if __name__ == "__main__":
+    Fire(run)
