@@ -50,6 +50,7 @@ def main(
     interval: Literal[5, 10] = 10,
     prefix: str = "corr",
     outdir: Path = Path("."),
+    nosave: bool = False,
     debug: bool = False,
 ) -> None:
     """Print a cordata command with given options.
@@ -60,6 +61,7 @@ def main(
         interval: Interval time in milliseconds.
         prefix: Name prefix of the output data.
         outdir: Directory for the output data.
+        nosave: If True, the output data are not saved.
         debug: If True, debug messages are logged.
 
     Returns:
@@ -110,7 +112,7 @@ def main(
         "-i",
         str(int(interval)),
         "-o",
-        prefix,
+        "" if nosave else prefix,
         "-d",
         str(outdir),
     )
