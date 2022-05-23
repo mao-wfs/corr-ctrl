@@ -4,7 +4,7 @@
 # standard library
 from os import environ
 from datetime import datetime, timedelta, timezone
-from logging import FileHandler, StreamHandler, basicConfig, getLogger
+from logging import FileHandler, basicConfig, getLogger
 from typing import Literal
 from pathlib import Path
 from subprocess import run
@@ -29,10 +29,7 @@ def configure_logging(debug: bool = False) -> None:
     basicConfig(
         level="DEBUG" if debug else "INFO",
         format="%(asctime)s %(levelname)s %(message)s",
-        handlers=(
-            StreamHandler(),
-            FileHandler("corr-ctrl.log"),
-        ),
+        handlers=(FileHandler("corr-ctrl.log")),
     )
 
 
@@ -53,10 +50,10 @@ def main(
     interval: Literal[5, 10] = 10,
     prefix: str = "corr",
     outdir: Path = Path("."),
-    dryrun: bool = False,
+    nosave: bool = False,
     debug: bool = False,
 ) -> None:
-    """Run the cordata command.
+    """Print a cordata command with given options.
 
     Args:
         start: Start time in any time format.
@@ -64,7 +61,7 @@ def main(
         interval: Interval time in milliseconds.
         prefix: Name prefix of the output data.
         outdir: Directory for the output data.
-        dryrun: If True, the command is not run.
+        nosave: If True, the output data are not saved.
         debug: If True, debug messages are logged.
 
     Returns:
@@ -115,7 +112,7 @@ def main(
         "-i",
         str(int(interval)),
         "-o",
-        prefix,
+        "" if nosave else prefix,
         "-d",
         str(outdir),
     )
@@ -126,12 +123,9 @@ def main(
         *OPTS_FIXED,
     )
 
-    # run the command
-    if dryrun:
-        logger.info("(dry run) " + " ".join(cmd))
-    else:
-        logger.info(" ".join(cmd))
-        run(cmd)
+    # print the command
+    logger.info(" ".join(cmd))
+    print(cmd)
 
 
 if __name__ == "__main__":
