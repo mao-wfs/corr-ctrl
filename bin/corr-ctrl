@@ -48,7 +48,7 @@ def get_env(name: str) -> str:
 
 
 def main(
-    start: str = "in 30 seconds",
+    start: str = "in 5 seconds",
     duration: float = 5.0,
     interval: Literal[5, 10] = 10,
     prefix: str = "corr",
