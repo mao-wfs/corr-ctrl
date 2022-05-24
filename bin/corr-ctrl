@@ -130,7 +130,7 @@ def main(
 
     # run the command
     if dryrun:
-        logger.info("(dry run" + " ".join(cmd))
+        logger.info("(dry run) " + " ".join(cmd))
     else:
         logger.info(" ".join(cmd))
         run(cmd)
