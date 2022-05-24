@@ -109,18 +109,28 @@ def main(
         "-c",
         get_env("CORDATA_SRC"),
     )
-    opts_from_cli = (
-        "-s",
-        format_date(dt_start),
-        "-e",
-        format_date(dt_end),
-        "-i",
-        str(int(interval)),
-        "-o",
-        "" if nosave else prefix,
-        "-d",
-        str(outdir),
-    )
+    if nosave:
+        opts_from_cli = (
+            "-s",
+            format_date(dt_start),
+            "-e",
+            format_date(dt_end),
+            "-i",
+            str(int(interval)),
+        )
+    else:
+        opts_from_cli = (
+            "-s",
+            format_date(dt_start),
+            "-e",
+            format_date(dt_end),
+            "-i",
+            str(int(interval)),
+            "-o",
+            prefix,
+            "-d",
+            str(outdir),
+        )
     cmd = (
         str(cordata),
         *opts_from_env,
